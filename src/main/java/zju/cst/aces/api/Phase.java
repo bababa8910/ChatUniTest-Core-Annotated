@@ -20,7 +20,11 @@ import java.util.List;
 
 import static zju.cst.aces.runner.AbstractRunner.runTest;
 
+/**
+ * Interface for running tests or other executable components.
+ */
 public class Phase {
+
     Config config;
     public static final String separator = "_";
 
@@ -28,6 +32,9 @@ public class Phase {
         this.config = config;
     }
 
+    /**
+     * Preparation phase
+     */
     @AllArgsConstructor
     public class Preparation {
 
@@ -41,11 +48,20 @@ public class Phase {
         }
     }
 
+    /**
+     * Prompt generation phase
+     */
     @AllArgsConstructor
     public class PromptGeneration {
         ClassInfo classInfo;
         MethodInfo methodInfo;
 
+        /**
+         * Set up the class and method information for prompt generation
+         * @param classInfo class information
+         * @param methodInfo method information
+         * @return the prompt generation object
+         */
         public PromptConstructorImpl execute(int num) {
             String testName = classInfo.getClassName() + separator + methodInfo.methodName + separator
                     + classInfo.methodSigs.get(methodInfo.methodSignature) + separator + num + separator + "Test";
@@ -77,19 +93,29 @@ public class Phase {
         }
     }
 
+    /**
+     * Test generation phase
+     */
     public class TestGeneration {
 
         PromptGenerator promptGenerator;
         MethodInfo methodInfo;
         ClassInfo classInfo;
 
-
+        /**
+         * Set up the prompt generator and method information for test generation
+         * @param promptInfo prompt information
+         */
         public void setUp(PromptInfo promptInfo) {
             this.promptGenerator = new PromptGenerator(config);
             this.methodInfo = promptInfo.getMethodInfo();
             this.classInfo = promptInfo.getClassInfo();
         }
 
+        /**
+         * Generate test code by chatting with LLM
+         * @param pc prompt constructor
+         */
         public void execute(PromptConstructorImpl pc) {
 
             PromptInfo promptInfo = pc.getPromptInfo();
@@ -179,9 +205,17 @@ public class Phase {
         }
     }
 
+    /**
+     * Validation phase
+     */
     @AllArgsConstructor
     public class Validation {
 
+        /**
+         * Validate the syntax of the code.
+         * @param pc prompt constructor
+         * @return true if the code is syntactically valid, false otherwise
+         */
         public boolean execute(PromptConstructorImpl pc) {
 
             PromptInfo promptInfo = pc.getPromptInfo();
@@ -203,6 +237,9 @@ public class Phase {
         }
     }
 
+    /**
+     * Repair phase
+     */
     @AllArgsConstructor
     public class Repair {
 

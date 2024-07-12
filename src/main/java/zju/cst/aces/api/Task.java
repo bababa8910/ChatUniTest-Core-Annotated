@@ -19,18 +19,31 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import zju.cst.aces.util.Counter;
 
+/**
+ * This class represents a task that can executed to generate tests for a project, a class, or a method.
+ */
 public class Task {
 
     Config config;
     Logger log;
     Runner runner;
 
+    /**
+     * Constructs a Task with the specified configuration and runner.
+     * @param config the configuration for the task
+     * @param runner the runner to use for the task
+     */
     public Task(Config config, Runner runner) {
         this.config = config;
         this.log = config.getLogger();
         this.runner = runner;
     }
 
+    /**
+     * Start a task to generate tests for a specific method.
+     * @param className the name of the class containing the method
+     * @param methodName the name of the method to generate tests for
+     */
     public void startMethodTask(String className, String methodName) {
         try {
             checkTargetFolder(config.getProject());
@@ -93,6 +106,11 @@ public class Task {
         log.info(String.format("\n==========================\n[%s] Generation finished", config.pluginSign));
     }
 
+    /**
+     * Start a task to generate tests for a specific class.
+     * 
+     * @param className the name of the class to generate tests for
+     */
     public void startClassTask(String className) {
         try {
             checkTargetFolder(config.getProject());
@@ -115,6 +133,9 @@ public class Task {
         log.info(String.format("\n==========================\n[%s] Generation finished",config.pluginSign));
     }
 
+    /**
+     * Start a task to generate tests for the entire project.
+     */
     public void startProjectTask() {
         Project project = config.getProject();
         try {
@@ -161,6 +182,11 @@ public class Task {
         log.info(String.format("\n==========================\n[%s] Generation finished",config.pluginSign));
     }
 
+    /**
+     * Executes jobs for the project using multithreading.
+     * 
+     * @param classPaths the list of class paths to generate tests for
+     */
     public void projectJob(List<String> classPaths) {
         ExecutorService executor = Executors.newFixedThreadPool(config.getClassThreads());
         List<Future<String>> futures = new ArrayList<>();
@@ -205,6 +231,14 @@ public class Task {
         executor.shutdown();
     }
 
+    /**
+     * Get the fully qualified name of a class.
+     * 
+     * @param config the configuration for the task
+     * @param name the name of the class
+     * @return the full class name
+     * @throws IOException if the class name is not found
+     */
     public static String getFullClassName(Config config, String name) throws IOException {
         if (isFullName(name)) {
             return name;
@@ -221,6 +255,12 @@ public class Task {
         return name;
     }
 
+    /**
+     * Check if the given name is a fully qualified name.
+     * 
+     * @param name the name of the class
+     * @return true if the class name is a full name, false otherwise
+     */
     public static boolean isFullName(String name) {
         if (name.contains(".")) {
             return true;
@@ -230,7 +270,9 @@ public class Task {
 
     /**
      * Check if the classes is compiled
+     * 
      * @param project
+     * @throws RuntimeException if the project is not compiled
      */
     public static void checkTargetFolder(Project project) {
         if (project.getPackaging().equals("pom")) {
